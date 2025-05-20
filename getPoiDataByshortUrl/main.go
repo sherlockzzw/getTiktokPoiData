@@ -28,16 +28,16 @@ type PoiDetailResponse struct {
 }
 
 func main() {
-	shortURL := "https://v.douyin.com/jSthVy0Jn-g/ 1@0.com"
+	shortUrl := "https://v.douyin.com/jSthVy0Jn-g/ 1@0.com"
 
-	poiID, err := extractPoiIDFromShortURL(shortURL)
+	poiId, err := extractPoiIDFromShortUrl(shortUrl)
 	if err != nil {
 		fmt.Printf("获取POI ID失败: %v\n", err)
 		return
 	}
-	fmt.Printf("成功获取POI ID: %s\n", poiID)
+	fmt.Printf("成功获取POI ID: %s\n", poiId)
 
-	poiDetail, err := getPoiDetail(poiID)
+	poiDetail, err := getPoiDetail(poiId)
 	if err != nil {
 		fmt.Printf("获取POI详情失败: %v\n", err)
 		return
@@ -53,16 +53,16 @@ func main() {
 		poiDetail.PoiInfo.PoiLatitude)
 }
 
-func extractPoiIDFromShortURL(rawURL string) (string, error) {
+func extractPoiIDFromShortUrl(rawUrl string) (string, error) {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 	}
 
-	cleanURL := strings.Split(rawURL, " ")[0]
+	cleanUrl := strings.Split(rawUrl, " ")[0]
 
-	resp, err := client.Head(cleanURL)
+	resp, err := client.Head(cleanUrl)
 	if err != nil {
 		return "", fmt.Errorf("请求失败: %v", err)
 	}
@@ -79,19 +79,19 @@ func extractPoiIDFromShortURL(rawURL string) (string, error) {
 	return "", fmt.Errorf("未发生重定向，状态码: %d", resp.StatusCode)
 }
 
-func extractPoiID(finalURL string) (string, error) {
-	u, err := url.Parse(finalURL)
+func extractPoiID(finalUrl string) (string, error) {
+	u, err := url.Parse(finalUrl)
 	if err != nil {
 		return "", fmt.Errorf("url解析失败: %v", err)
 	}
 
 	query := u.Query()
-	if poiID := query.Get("poi_id"); poiID != "" {
-		return poiID, nil
+	if poiId := query.Get("poi_id"); poiId != "" {
+		return poiId, nil
 	}
 
 	re := regexp.MustCompile(`poi_id=([^&]+)`)
-	matches := re.FindStringSubmatch(finalURL)
+	matches := re.FindStringSubmatch(finalUrl)
 	if len(matches) > 1 {
 		return matches[1], nil
 	}
@@ -99,10 +99,10 @@ func extractPoiID(finalURL string) (string, error) {
 	return "", fmt.Errorf("未找到poi_id参数")
 }
 
-func getPoiDetail(poiID string) (*PoiDetailResponse, error) {
-	apiURL := fmt.Sprintf("https://www.iesdouyin.com/web/api/v2/poi/detail/?poi_id=%s", poiID)
+func getPoiDetail(poiId string) (*PoiDetailResponse, error) {
+	apiUrl := fmt.Sprintf("https://www.iesdouyin.com/web/api/v2/poi/detail/?poi_id=%s", poiId)
 
-	resp, err := http.Get(apiURL)
+	resp, err := http.Get(apiUrl)
 	if err != nil {
 		return nil, fmt.Errorf("请求失败: %v", err)
 	}
